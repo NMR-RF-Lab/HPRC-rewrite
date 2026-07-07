@@ -1,0 +1,41 @@
+# This repo tracks only the hprc/ pipeline, changes.txt, README, and .gitignore.
+# The toolboxes it depends on are separate repos — clone them per the README
+# rather than committing them here.
+
+# ── Cloned / downloaded dependencies (see README for how to obtain) ──────
+/bipolar_fat_water_separation/
+/CREAM_PDFF/
+/GRMD/
+/MEDI-2024.11.26/
+
+# ── Results / generated outputs ─────────────────────────────────────────
+Results/
+hprc/Results/
+*_PDFF.png
+
+# ── Data: large / patient DICOM and .mat (kept out of git) ──────────────
+*.mat
+*.IMA
+*.ima
+*.dcm
+DICOM/
+
+# ── HPRC / SLURM job logs ───────────────────────────────────────────────
+fwsep_*.out
+fwsep_*.err
+slurm-*.out
+*.out
+*.err
+core.*
+
+# ── MATLAB scratch / autosave ───────────────────────────────────────────
+*.asv
+*.m~
+*.autosave
+*.mex
+slprj/
+
+# ── OS cruft ────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini

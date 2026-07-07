@@ -1,0 +1,17 @@
+This program currently separates fat and water images in C:\Users\apad2\Desktop\Fat_water_separation\DICOM_Files. It runs on Windows, and I need it to be able to run on TAMU's HPRC, which runs on Linux but can run the program much faster. I want it to use the bipolar fat water separation present in C:\Users\apad2\Desktop\repos\bipolar_fat_water_separation. Here are some starting changes I think need to be made. Make others as you see fit:
+
+DogAnalysis is very interactive, needs to be more automated
+
+The program should do one folder initially, then the rest in a batch after confirming it looks right 
+
+Need a way to transfer images back over SSH
+
+Need a way to either save mat files to disk (this might not be an option on HPRC) or transfer to computer after running
+
+Paths in AnalysisCode.m, DogAnalysis.m, and dogexplorer.m need to be changed to work properly (path issues may be present in other files I missed)
+
+I do not think the MEDI toolbox is needed anymore in the program's current state.
+
+First folder it runs on should be the last date of SUSHI, path present at C:\Users\apad2\Desktop\Fat_water_separation\DICOM_Files\DICOM\20250506\GRE2D_FATWATER_SUSHI_0012. If the images in that look good, then it should process the other 15 folders.
+
+The MATLAB, Image Processing Toolbox, Optimization Toolbox, and Parallel Computing Toolbox all need to be added
