@@ -67,30 +67,39 @@ cfg.save_preview = false;
 % ----------------------------------------------------------------------
 % Fat-water separation parameters (Function_Bipolar_GC / ISMRM toolbox)
 % ----------------------------------------------------------------------
-% Two-species model. Water at 4.7 ppm; fat is a 6-peak model. These are the
-% values from the reference example (peanut-oil fat model). If you have an
-% in-vivo canine fat model, change species(2).frequency / relAmps here.
+% Two-species model, matched to the legacy GRMD pipeline (CSC.grabPars,
+% 'BipolarIGC'). Water is the 0 ppm reference and the 6-peak fat model is
+% specified as chemical shift RELATIVE to water, so the toolbox's
+% deltaF = gyro*(species(2).frequency - species(1).frequency) reproduces the
+% exact fat frequencies GRMD used. (The old absolute-ppm form, water = 4.7 &
+% fat = [0.80..5.20], shifted every peak ~0.1 ppm and is what differed here.)
 cfg.species(1).name      = 'water';
-cfg.species(1).frequency = 4.7;
+cfg.species(1).frequency = 0;
 cfg.species(1).relAmps   = 1;
 cfg.species(2).name      = 'fat';
-cfg.species(2).frequency = [0.80 1.20 2.00 2.66 4.21 5.20];
-cfg.species(2).relAmps   = [0.087 0.694 0.128 0.004 0.039 0.048];
+cfg.species(2).frequency = [-3.80 -3.40 -2.60 -1.94 -0.39 0.60];
+cfg.species(2).relAmps   = [0.087 0.693 0.128 0.004 0.039 0.048];
 
 % Graph-cut algorithm parameters (see Example_fat_water_separation... .m).
+% NOTE: the R2*/field-map grid density and regularization below are set to
+% the legacy GRMD values (CSC.grabPars, 'BipolarIGC'). The previous HPRC
+% values (NUM_FMS=501, NUM_R2STARS=26, range_r2star=[0 100], lambda=0.05) were
+% coarser/less regularized and produced grainier, more swap-prone maps.
+% Restoring them roughly doubles the field-map search and ~4x's the R2* search,
+% so expect a longer runtime in exchange for the improved separation quality.
 cfg.algo.size_clique          = 1;
-cfg.algo.range_r2star         = [0 100];
-cfg.algo.NUM_R2STARS          = 26;
+cfg.algo.range_r2star         = [0 300];   % GRMD: [0 300] (was [0 100])
+cfg.algo.NUM_R2STARS          = 101;       % GRMD: 101     (was 26)
 cfg.algo.range_fm             = [-500 500];
-cfg.algo.NUM_FMS              = 501;
+cfg.algo.NUM_FMS              = 1001;      % GRMD: 1001 -> 1 Hz grid (was 501)
 cfg.algo.NUM_ITERS            = 80;
 cfg.algo.SUBSAMPLE            = 0;
 cfg.algo.DO_OT                = 0;
 cfg.algo.LMAP_POWER           = 2;
-cfg.algo.lambda               = 0.05;
+cfg.algo.lambda               = 0.10;      % GRMD: 0.10 (was 0.05)
 cfg.algo.LMAP_EXTRA           = 0.05;
 cfg.algo.TRY_PERIODIC_RESIDUAL = 0;
-cfg.algo.THRESHOLD            = 0.01;
+cfg.algo.THRESHOLD            = 0;         % GRMD: 0 (was 0.01)
 cfg.algo.tik_reg              = 0;
 cfg.algo.weight               = 0.5;
 cfg.algo.fm_init              = 0;
