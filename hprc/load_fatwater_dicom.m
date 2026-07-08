@@ -46,6 +46,30 @@ end
 iField = mag .* exp(1i*phs);                 % [X Y Z nTE]
 nTE = size(iField, 4);
 
+% The bipolar graph-cut separator pairs odd/even readout echoes and therefore
+% needs an EVEN number of echoes (Function_Bipolar_GC allocates numte/2). This
+% data has 7 echoes, so drop the LAST echo to keep a clean bipolar pairing
+% (echoes 1-6: odd {1,3,5} / even {2,4,6}). Dropping the last (not the first)
+% echo preserves the polarity-to-index relationship the correction assumes.
+if cfg.force_even_echoes && mod(nTE, 2) == 1
+    warning('load_fatwater_dicom:oddEchoes', ...
+        ['%s: %d echoes is odd; bipolar separation needs an even count. ', ...
+         'Dropping the last echo (using %d).'], folder_name(mag_folder), nTE, nTE-1);
+    nTE    = nTE - 1;
+    iField = iField(:,:,:,1:nTE);
+    mag    = mag(:,:,:,1:nTE);
+    TE     = TE(1:nTE);
+end
+
+% Legacy "zipped" step: 2x in-plane k-space zero-fill (sinc interpolation) of
+% the complex multi-echo image, reproducing GRMD/DogAnalysis.m so the whole
+% separation runs at 384x384 like the old pipeline. Applied BEFORE separation,
+% and the body mask magnitude is taken from the interpolated complex image.
+if cfg.zipped
+    iField = kspace_zerofill2x(iField);   % [2X 2Y Z nTE] complex
+    mag    = abs(iField);                 % magnitude for make_bodymask, at 2x
+end
+
 d.name        = folder_name(mag_folder);
 d.magnitude   = mag;
 d.images      = reshape(iField, [size(iField,1), size(iField,2), size(iField,3), 1, nTE]);
@@ -65,6 +89,9 @@ else
     zsp = double(hdr0.SliceThickness);
 end
 d.voxelSize = [double(ps), zsp];
+if cfg.zipped
+    d.voxelSize(1:2) = d.voxelSize(1:2) / 2;   % 2x interpolation halves in-plane spacing
+end
 
 % B0 as seen by protons = imaging frequency (MHz) / gyro (MHz/T). This is
 % what the fat-frequency (Hz) conversion inside the toolbox expects.
@@ -73,6 +100,26 @@ d.FieldStrength = double(hdr0.ImagingFrequency) / cfg.gyro;
 d.sliceLocations = sliceLoc;
 d.mag_hdr   = hdr0;
 d.phase_hdr = hdrP0;
+end
+
+% -----------------------------------------------------------------------
+function out = kspace_zerofill2x(in)
+%KSPACE_ZEROFILL2X 2x in-plane k-space zero-fill (sinc interpolation).
+%   Replicates GRMD/DogAnalysis.m's "zipped" preprocessing: pad the image to
+%   suppress ghosting, FFT to k-space, zero-fill, inverse FFT, and crop back.
+%   in/out: [X Y Z nTE] complex; out is [2X 2Y Z nTE].
+[nx, ny, nz, nte] = size(in);
+psize = [nx, ny];
+out = zeros(2*nx, 2*ny, nz, nte, 'like', in);
+for j = 1:nte
+    for i = 1:nz
+        img = padarray(in(:,:,i,j), psize/2, 0, 'both');   % image-space pad -> [2X 2Y]
+        k   = ifftshift(ifft2(ifftshift(img)));
+        k   = padarray(k, psize, 0, 'both');                % zero-fill k-space
+        im  = fftshift(fft2(fftshift(k)));
+        out(:,:,i,j) = im(nx+1:end-nx, ny+1:end-ny);        % crop back -> [2X 2Y]
+    end
+end
 end
 
 % -----------------------------------------------------------------------

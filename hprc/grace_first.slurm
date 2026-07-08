@@ -7,24 +7,26 @@
 # Check progress:                   squeue -u $USER   /   tail -f fwsep_first_*.out
 ##############################################################################
 #SBATCH --job-name=fwsep_first
-#SBATCH --time=02:00:00
+#SBATCH --time=05:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=64G
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=60G
 #SBATCH --output=fwsep_first_%j.out
 #SBATCH --error=fwsep_first_%j.err
 ### ---- EDIT THESE ----------------------------------------------------------
 #SBATCH --account=ACCOUNT_XXXXXX        # your Grace allocation (module load; 'myproject')
-### If your project needs a specific partition, uncomment and set it:
-###SBATCH --partition=cpu
+# 384x384 before-separation zero-fill makes one series ~3h, over the 2h 'short'
+# cap, so an explicit partition is required. 'medium' allows 24h.
+#SBATCH --partition=medium
 ##############################################################################
 
 set -euo pipefail
 
-# ---- EDIT: MATLAB module (Optimization Toolbox needs R2026a+) --------------
+# ---- EDIT: MATLAB module ---------------------------------------------------
 # Run `module spider MATLAB` on Grace to see exact names, then set below.
-MATLAB_MODULE="MATLAB/R2026a"
+# R2019a+ is sufficient (only lsqlin / size(x,1:3) are needed); R2024a is used.
+MATLAB_MODULE="Matlab/R2024a"
 
 # ---- EDIT: where the code and data live on Grace ---------------------------
 # This pipeline (the hprc folder you rsync'd up).

@@ -38,8 +38,26 @@ cfg.mag_series_is_even = true;   % magnitude folders end in an even 4-digit id
 % Slices to reconstruct. [] means "all slices in the volume".
 cfg.slices = [];
 
-% Use a parallel pool (parfor over slices). Set false to force serial.
-cfg.use_parpool = true;
+% Print slice-by-slice progress from the separator to the log (helps monitor
+% long runs with `tail -f`). Set false for quieter logs.
+cfg.verbose = true;
+
+% The bipolar separator requires an EVEN number of echoes (it pairs odd/even
+% readout echoes). This data has 7, so drop the last echo to make it 6. Set
+% false only if your data already has an even echo count.
+cfg.force_even_echoes = true;
+
+% Legacy "zipped" behaviour: 2x in-plane k-space zero-fill of the complex
+% images BEFORE separation, so everything runs at 384x384 like the old
+% pipeline (GRMD/DogAnalysis.m). This ~4x's the voxel count and therefore the
+% runtime (~3 h/series vs ~44 min). Set false for native 192x192.
+cfg.zipped = true;
+
+% Parallel pool. NOTE: the current separation code is entirely serial (no
+% parfor anywhere), so a pool does not speed anything up and just adds startup
+% overhead and holds Parallel Computing Toolbox licenses. Left off by default;
+% set true only if a future version adds parfor-based work.
+cfg.use_parpool = false;
 
 % Write a lightweight PNG montage of PDFF next to each .mat so results can be
 % eyeballed without MATLAB. Off by default (changes.txt asked for .mat), but

@@ -37,7 +37,9 @@ algoParams.gyro    = cfg.gyro;
 algoParams.slice_image = vec_slices(max(1, round(numel(vec_slices)/2)));
 
 % ---- run -------------------------------------------------------------
-out = Function_Bipolar_GC(imDataParams, algoParams, vec_slices);
+% Pass VERBOSE so slice-by-slice progress prints to the SLURM .out log.
+verbose = isfield(cfg, 'verbose') && cfg.verbose;
+out = Function_Bipolar_GC(imDataParams, algoParams, vec_slices, verbose);
 if isempty(out)
     error('separate_one:failed', 'Function_Bipolar_GC returned empty for %s', d.name);
 end

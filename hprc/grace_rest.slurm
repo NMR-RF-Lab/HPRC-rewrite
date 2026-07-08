@@ -6,22 +6,24 @@
 # Submit from a Grace login node:   sbatch grace_rest.slurm
 ##############################################################################
 #SBATCH --job-name=fwsep_rest
-#SBATCH --time=12:00:00
+#SBATCH --time=3-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
-#SBATCH --mem=120G
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=60G
 #SBATCH --output=fwsep_rest_%j.out
 #SBATCH --error=fwsep_rest_%j.err
 ### ---- EDIT THESE ----------------------------------------------------------
 #SBATCH --account=ACCOUNT_XXXXXX        # your Grace allocation
-###SBATCH --partition=cpu
+# At ~3h/series x15 (~45h) the 384x384 batch exceeds the 24h 'medium' cap, so
+# use 'long' (7-day limit). Refine --time from the first-series elapsed time.
+#SBATCH --partition=long
 ##############################################################################
 
 set -euo pipefail
 
 # ---- EDIT: same values as grace_first.slurm --------------------------------
-MATLAB_MODULE="MATLAB/R2026a"
+MATLAB_MODULE="Matlab/R2024a"
 export FWSEP_HPRC="$SCRATCH/hprc"
 export FWSEP_BIPOLAR_PATH="$SCRATCH/bipolar_fat_water_separation"
 export FWSEP_ISMRM_PATH="$SCRATCH/CREAM_PDFF/hernando"

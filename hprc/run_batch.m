@@ -88,7 +88,7 @@ for i = 1:numel(todo)
         res.processed_on  = char(datetime('now', 'Format', 'yyyy-MM-dd''T''HH:mm:ss'));
 
         out_mat = fullfile(cfg.output_root, [tag '.mat']);
-        save(out_mat, 'res', '-v7.3');
+        save(out_mat, 'res', '-v7');   % match the legacy pipeline's default format
         fprintf('  saved %s\n', out_mat);
 
         if force_preview || cfg.save_preview
