@@ -53,13 +53,6 @@ Fat(:,:,vec_slices)   = out.species(2).amps(:,:,vec_slices);
 Field(:,:,vec_slices) = out.fieldmap(:,:,vec_slices);
 R2s(:,:,vec_slices)   = out.r2starmap(:,:,vec_slices);
 
-% ---- automatic fat/water swap correction -----------------------------
-% Bipolar graph-cut separation intermittently flips fat<->water on
-% individual slices. Undo it with the same in-mask energy heuristic the GRMD
-% pipeline used (only the amplitude maps are swapped, before PDFF). Field map
-% and R2* are left as-is, matching the legacy automatic check.
-[Water, Fat, swapped] = correct_fatwater_swaps(Water, Fat, logical(mask), vec_slices, verbose);
-
 % ---- PDFF ------------------------------------------------------------
 denom = abs(Fat) + abs(Water);
 PDFF = zeros(sz);
@@ -74,7 +67,6 @@ res.PDFF       = PDFF;
 res.FieldMap   = Field;
 res.R2star     = R2s;
 res.Mask       = logical(mask);
-res.SwappedSlice = swapped;    % slices auto-corrected for fat/water swap
 res.TE         = d.TE;
 res.voxelSize  = d.voxelSize;
 res.FieldStrength = d.FieldStrength;
