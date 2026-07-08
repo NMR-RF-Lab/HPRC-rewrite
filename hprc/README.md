@@ -31,7 +31,7 @@ and via `FWSEP_BIPOLAR_PATH` / `FWSEP_ISMRM_PATH` on the cluster.
 | `fw_config.m` | All paths + parameters. **Edit here** (or set env vars). |
 | `find_series.m` | Locate the 16 magnitude series, review series first. |
 | `load_fatwater_dicom.m` | Read a mag+phase `.IMA` series → complex image, TE, voxel size, B0. |
-| `make_bodymask.m` | Automatic body mask (replaces interactive ROI drawing). |
+| `make_bodymask.m` | Automatic body mask, ported from GRMD `Operations.Mask` (3% threshold + Chan-Vese, keeps both legs). |
 | `separate_one.m` | Run `Function_Bipolar_GC` on one series → maps + PDFF. |
 | `run_batch.m` | Headless driver. `run_batch('first'|'rest'|'all')`. |
 | `save_pdff_preview.m` | Write a PDFF PNG montage (no display needed). |
